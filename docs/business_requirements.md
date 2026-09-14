@@ -1,8 +1,5 @@
 # RavenStack — Business Requirements
 
-Version: 1.1  
-Updated: 14 September 2026
-
 ## 1. Company Context
 
 RavenStack is a fictional B2B SaaS company offering Basic, Pro and Enterprise subscription plans. Its customers are businesses that pay recurring subscription fees to access its software.

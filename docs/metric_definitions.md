@@ -1,7 +1,5 @@
 # RavenStack — Metric definitions
 
-Version: 1.1  
-Updated: 14 September 2026  
 Status: Business specification. Source validation and implementation are pending.
 
 All monetary examples in this document are hypothetical. They are not findings about RavenStack. GBP is used for examples only; the reporting currency must be established from the sources.
