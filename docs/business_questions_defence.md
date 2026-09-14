@@ -1,12 +1,19 @@
 # RavenStack — Business Questions: Rationale and Defence
 
+Version: 1.1  
+Updated: 14 September 2026
+
 This document explains why the five analytical questions matter, how they would be investigated and what the results could support. See [business_requirements.md](business_requirements.md) for the fictional business scenario and stakeholder roles.
 
-These are proposed analyses. Source fields and implementation rules have not yet been verified. All numerical examples below are hypothetical teaching examples, not findings from RavenStack data.
+These are proposed analyses. The working measurement rules are documented in [metric_definitions.md](metric_definitions.md); source fields and implementation feasibility remain unverified. All numerical examples below are hypothetical illustrations, not findings from RavenStack data. GBP is an example currency; the reporting currency remains subject to source validation.
 
 ## Shared Reasoning
 
-Under a consistent MRR definition, using one currency and assuming no other adjustments:
+Under a consistent MRR definition and currency:
+
+**Net MRR change (net additions) = Ending MRR − Opening MRR**
+
+With complete movement coverage and no other adjustments:
 
 **Net MRR additions = New + Expansion + Reactivation − Contraction − Churned MRR**
 
@@ -14,9 +21,13 @@ Under a consistent MRR definition, using one currency and assuming no other adju
 
 **Monthly MRR growth rate = Net MRR additions / Opening MRR × 100%**
 
-The examples record Contraction and Churned MRR as positive loss amounts and subtract them. The growth-rate formula requires positive opening MRR; a zero opening balance needs separate treatment.
+The examples record Contraction and Churned MRR as positive loss amounts and subtract them. With zero opening MRR, report the growth rate as N/A and retain the absolute change. Verified opening and ending balances can establish net change even when gross movements cannot be recovered from the available history.
 
 A lower growth rate can coexist with increasing MRR. Counts, rates and monetary amounts answer different questions, so the analysis must connect customer behaviour to changes in MRR over time. MRR movements identify financial contributions; further evidence is needed to explain the underlying customer or operational causes.
+
+Customer counts use distinct accounts. Monetary movements sum qualifying event amounts; an account can have more than one event in a period. A distinct-customer count multiplied by average MRR at a single churn event is therefore not a general formula for gross Churned MRR.
+
+Feature and support cohorts may overlap across features or observation windows. Attribute monetary events once within each intended breakdown and use aligned period boundaries when reconciling to company MRR. Do not sum overlapping cohort losses as if they were independent contributions.
 
 ## 1. MRR Movements
 
@@ -50,7 +61,7 @@ Separately, unchanged net additions of £10,000 would produce 10.00% growth on a
 
 ### Decision and Limitations
 
-The Head of Growth can use the breakdown to prioritise investigation. Falling New MRR warrants checking the number of new paying customers and their average initial MRR. Rising Churned MRR warrants checking churned-customer counts and their MRR at churn.
+The Head of Growth can use the breakdown to prioritise investigation. Falling New MRR warrants checking the number of first-time paying accounts and their average initial MRR. Rising Churned MRR warrants checking distinct affected accounts, churn-event counts and the MRR lost at each event.
 
 For example, 10 new customers averaging £1,000 contribute £10,000, while 12 averaging £500 contribute £6,000. New MRR can fall even when the number of new paying customers increases.
 
@@ -68,11 +79,15 @@ The breakdown does not establish why customers churn or expand. It also does not
 
 Company-wide churn can hide deterioration in a particular customer group. I would use clearly defined segments supported by the data, such as company size or country, and compare churn counts, churn rates and Churned MRR over complete months.
 
-Rates require a consistent eligible customer base. I would examine group sizes, recurring revenue exposure and changes in customer mix, then reconcile the segment-level losses to the company total.
+The customer churn rate uses the fixed cohort paying at the opening cutoff: its numerator is the distinct accounts that lose all paid subscriptions at least once during the month. An account that churns and returns still enters this event-based numerator. I would assign these accounts to their opening segment and keep the assignment fixed for the period.
+
+I would report opening-cohort churn counts, rates and Churned MRR together, then show Churned MRR from accounts outside that cohort separately when reconciling to the company total. Group sizes, recurring revenue exposure and changes in customer mix remain part of the interpretation.
 
 ### Worked Example
 
-| Segment | Customers at the start | Churned customers from that starting group | Customer churn rate | Churned MRR |
+For this example, each churned account has one churn event and all churn events belong to the opening cohort.
+
+| Segment | Customers at the start | Churned customers from that starting group | Customer churn rate | Opening-cohort Churned MRR |
 | --- | ---: | ---: | ---: | ---: |
 | A | 100 | 10 | 10% | £1,000 |
 | B | 100 | 5 | 5% | £5,000 |
@@ -93,24 +108,24 @@ Small samples, differences in plan or tenure, and changing segment composition c
 
 ## 3. Product Usage
 
-**Question:** How is feature usage frequency over a 30-day period associated with paid-customer retention over the following 30 days?
+**Question:** How is feature usage frequency over a 30-day period associated with paid-customer retention at the end of the following 30 days?
 
 ### Why and How
 
-This question investigates whether earlier feature usage is associated with later retention. I would define eligible paying accounts with access to the feature, measure usage during the preceding 30 days and observe retention over the following 30 days.
+This question investigates whether earlier feature usage is associated with later retention. I would start with accounts paying at cutoff T, measure feature active days during the preceding 30 complete reporting dates and assess paid status at T + 30 days. Valid usage-event counts would provide supporting volume context. Eligible observations require adequate feature-access and tracking coverage and an observable day-30 paid status.
 
-Usage groups must be defined explicitly. I would compare their retention, group size and subsequent Churned MRR across observation periods. If relevant, I would separately examine Contraction MRR among customers who remain paying.
+Usage bands remain subject to feature semantics and source validation. Within each feature and observation period, I would compare groups' endpoint retention, eligible-account counts and subsequent Churned MRR. If relevant, I would separately examine Contraction MRR among customers who remain paying. An account that leaves and returns by day 30 is retained at the endpoint, so endpoint retention alone does not recover every churn event.
 
 ### Worked Example
 
-Suppose Churned MRR from the lower-usage group rises from £2,000 to £5,000. With all other MRR movements unchanged, net additions are £3,000 lower.
+Suppose Churned MRR from the lower-usage group for one feature rises from £2,000 to £5,000 across two comparable observation periods. If Churned MRR from all other accounts and all other MRR movements are unchanged, net additions over those same boundaries are £3,000 lower. Contributions to a calendar-month slowdown must be reconciled using the events' effective dates in that calendar month.
 
-That does not prove more customers churned:
+That does not prove more customers churned. Each churned account has one churn event in this example:
 
 | Period | Churned customers | Average MRR at churn | Churned MRR |
 | --- | ---: | ---: | ---: |
-| Previous month | 2 | £1,000 | £2,000 |
-| Current month | 1 | £5,000 | £5,000 |
+| Previous period | 2 | £1,000 | £2,000 |
+| Current period | 1 | £5,000 | £5,000 |
 
 Here fewer customers churned, but the lost MRR increased. Both the number of churned customers and their recurring value matter.
 
@@ -120,7 +135,7 @@ Product can investigate onboarding, usability or customer needs in the affected 
 
 Low usage alone does not establish low value or cause MRR loss. A useful monthly feature may only need monthly use. Account size, tenure, feature access and incomplete tracking can affect usage comparisons; missing events must not automatically be treated as zero usage.
 
-Usage must be measured before the outcome, with complete follow-up data. Even then, an existing intention to leave could reduce usage before cancellation. Temporal ordering alone does not prove causation.
+Usage must be measured before the outcome. Observations with incomplete follow-up or unknown endpoint status must be reported separately and excluded from the currently measurable day-30 rate, with counts and reasons disclosed. Even with sufficient coverage, an existing intention to leave could reduce usage before cancellation. Temporal ordering alone does not prove causation.
 
 ### Interview Defence
 
@@ -128,17 +143,17 @@ Usage must be measured before the outcome, with complete follow-up data. Even th
 
 ## 4. Support Experience
 
-**Question:** How is support CSAT associated with paid-customer retention 30 days after support, and how has this relationship changed over time?
+**Question:** How is support CSAT associated with paid-customer retention 30 days after the selected CSAT response, and how has this relationship changed over time?
 
 ### Why and How
 
-CSAT is a specific measure of reported satisfaction with support. I would identify eligible support interactions and paying accounts, define score groups using the actual scale and compare paid-customer retention 30 days after the agreed support reference point.
+CSAT is a specific measure of reported satisfaction with support. For each account and reporting month, I would select the first valid CSAT response recorded while the account is paying. Its recorded timestamp is T; paid status at T + 30 days is the retention outcome. This response timestamp is the operational post-support anchor and is not assumed to equal ticket resolution time.
 
-I would track group sizes and subsequent Churned MRR over time to assess their contribution to the slowdown. The reference event, handling of multiple tickets and aggregation of scores must be defined before calculation.
+I would define score groups using the validated source scale, then compare day-30 paid retention, eligible-account counts and subsequent Churned MRR over time. Later responses remain in the source data but do not replace the selected response or create another observation for that account in the same reporting month. Monetary comparisons with the slowdown must use aligned reporting periods and avoid duplicate events across observations.
 
 ### Worked Example
 
-| CSAT group | Eligible paying customers | Still paying after 30 days | Retention |
+| CSAT group | Eligible paying customers | Paying at day 30 | Retention |
 | --- | ---: | ---: | ---: |
 | Low | 100 | 80 | 80% |
 | High | 200 | 160 | 80% |
@@ -151,27 +166,27 @@ Customer retention also does not capture every revenue loss. If 100 customers co
 
 Customer Success can investigate response times, resolution times, repeated issues or unclear handovers where the data supports these checks. Long resolution times alone do not justify adding support staff or engineers: delays could arise from ownership, dependencies, issue complexity or another bottleneck.
 
-Low CSAT does not prove an issue remains unresolved. Survey respondents may differ from non-respondents, and severe issues may affect both satisfaction and retention. Accounts with multiple tickets must not have their customer counts or MRR duplicated through joins. Follow-up must cover the full 30 days.
+Low CSAT does not prove an issue remains unresolved. Survey respondents may differ from non-respondents, and severe issues may affect both satisfaction and retention. The selected first score does not represent every support experience during the month. Accounts with multiple tickets must not have their customer counts or MRR duplicated through joins. Require observable paid status at day 30 and disclose observations excluded because their outcome is not observable.
 
 ### Interview Defence
 
-> I would compare 30-day paid-customer retention across CSAT groups and examine whether their Churned MRR increased during the slowdown. Customer Success could use the findings to investigate specific support problems and choose actions based on the identified cause. I would account for group sizes, ticket severity, repeated tickets and selective survey responses, and would describe the result as an association.
+> I would select one qualifying CSAT response per account and reporting month, then compare paid status 30 days later across score groups. I would examine whether related Churned MRR increased during the slowdown using aligned periods and distinct monetary events. Customer Success could use the findings to investigate specific support problems. Group sizes, ticket severity, repeated observations and selective survey responses would limit interpretation; the result would remain an association.
 
 ## 5. Expansion by Subscription Plan
 
-**Question:** How has Expansion MRR changed across Basic, Pro and Enterprise over the last three months?
+**Question:** How has Expansion MRR changed across Basic, Pro and Enterprise over the latest three complete months available in the dataset?
 
 ### Why and How
 
 The MRR movement question identifies whether Expansion contributes to the slowdown. This question locates that change across subscription plans.
 
-I would use the latest three complete months in the dataset and a consistent plan-attribution rule. Within each plan, I would separate the number of accounts with expansion from their average incremental MRR and consider the eligible customer base.
+I would use the latest three complete months in the dataset and attribute each qualifying Expansion event to the plan immediately before the event. Within each plan/month, I would sum the Expansion amounts by account, count distinct expanding accounts and calculate their average total contribution. Accounts without expansion do not enter this average. I would also consider the eligible customer base when interpreting differences.
 
 Expansion measures the increase in recurring value. For a single expansion from £100 to £150 MRR, the expansion is £50. If the account stays at £150 next month, it continues contributing MRR but creates no new expansion.
 
 ### Worked Example
 
-| Scenario | Accounts with expansion | Average incremental MRR | Expansion MRR |
+| Scenario | Accounts with expansion | Average total Expansion MRR per expanding account | Expansion MRR |
 | --- | ---: | ---: | ---: |
 | Previous month | 10 | £500 | £5,000 |
 | Current month, possibility A | 4 | £500 | £2,000 |
@@ -179,29 +194,28 @@ Expansion measures the increase in recurring value. For a single expansion from 
 
 Possibility A reflects fewer expanding accounts; B reflects smaller average increases. The same total can arise through different mechanisms.
 
-If Expansion MRR attributed to Pro falls from £5,000 to £2,000 while other movements remain unchanged, net additions fall by £3,000. This does not establish that total Pro MRR or the total number of Pro customers declined. Downgrades belong to Contraction, which is held unchanged in this example.
+If Expansion MRR attributed to Pro falls from £5,000 to £2,000 while Expansion from all other plan groups and all other MRR movements remain unchanged, net additions fall by £3,000. This does not establish that total Pro MRR or the total number of Pro customers declined. Downgrades belong to Contraction, which is held unchanged in this example.
 
 ### Decision and Limitations
 
 Growth can focus on the affected plan and investigate verified expansion needs, such as additional seats or features, if the pricing model supports them. Higher usage does not guarantee an upgrade: the current plan may still meet the customer's needs.
 
-A Basic-to-Pro movement must be assigned consistently, for example by the plan before or after the change, without being counted in both within the same breakdown. Expansion can occur without a change of plan name. Three months may be insufficient to establish a longer-term trend or rule out seasonality.
+A Basic-to-Pro change from £100 to £150 MRR creates £50 Expansion attributed to Basic under the pre-event plan rule. Expansion can also occur through recurring seats or add-ons without a change of plan name. Keep missing or ambiguous pre-event plan assignments in Unclassified plan, preserving the monetary amount. Three months may be insufficient to establish a longer-term trend or rule out seasonality.
 
-The worked example assumes one expansion per expanding account in each month. Multiple events require a consistent aggregation rule.
+Multiple events on the same account can increase its monthly contribution without increasing its count within that plan/month. An account can contribute to different plan groups through separate events; per-plan distinct-account counts are therefore not necessarily additive. Calculate company totals from distinct accounts across all qualifying events, and reconcile monetary totals including Unclassified plan.
 
 ### Interview Defence
 
-> I would compare Expansion MRR across plans, separating the number of expanding accounts from the average incremental MRR and considering the eligible base. This would identify where expansion weakened and how it reduced net additions. Growth could investigate the affected group's needs and expansion opportunities. I would define plan attribution consistently and avoid assuming that every customer with high usage should upgrade.
+> I would attribute Expansion to the plan before each event and compare total Expansion, distinct expanding accounts and their average total contribution across complete months. This would show which starting-plan groups weakened and how that affected net additions. Growth could investigate those groups' needs and expansion opportunities. I would account for missing plan history and overlapping account counts, and avoid assuming that high usage necessarily warrants an upgrade.
 
-## Implementation Decisions to Resolve
+## Source Validation and Implementation Dependencies
 
-These decisions must be documented and verified before the questions are implemented:
+The working business rules are specified in [metric_definitions.md](metric_definitions.md). The following checks are still required before implementation:
 
-| Area | Required decision or validation |
+| Area | Required validation |
 | --- | --- |
 | Grain and joins | Confirm whether each source represents an account, subscription, user, event or ticket; prevent duplicated customer counts and MRR. |
-| MRR rules | Define monthly normalisation, discounts, currencies, movement timing, and how multiple changes in a period are classified. Reconcile the chosen movements to opening and ending MRR. |
-| Retention and churn | Define eligibility, effective churn dates, the retention outcome, treatment of reactivation and complete observation windows. |
-| Group definitions | Define segment timing, feature access, usage thresholds, CSAT groups, multiple-score handling and plan attribution. |
+| MRR rules | Map monthly normalisation and account-level effective movements to source fields. Confirm currency and treatment of discounts and other adjustments; assess whether event history supports gross movements and reconciliation. |
+| Retention and churn | Validate paid-state semantics and effective dates. Establish whether the fixed opening cohort's churn events and the required retention endpoints are observable; preserve unknown outcomes and incomplete follow-up. |
+| Group definitions | Validate historical opening-segment and pre-event plan membership, feature access and first-response selection. Set data-dependent usage bands and CSAT thresholds explicitly after source review. |
 | Data coverage | Verify the required fields and periods exist. Document missing values, tracking gaps and unsupported questions before changing scope. |
-

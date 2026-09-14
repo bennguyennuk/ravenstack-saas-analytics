@@ -1,5 +1,8 @@
 # RavenStack — Business Requirements
 
+Version: 1.1  
+Updated: 14 September 2026
+
 ## 1. Company Context
 
 RavenStack is a fictional B2B SaaS company offering Basic, Pro and Enterprise subscription plans. Its customers are businesses that pay recurring subscription fees to access its software.
@@ -34,12 +37,16 @@ What is driving the slowdown in RavenStack's MRR growth?
 
 1. **MRR movements:** How have changes in New, Expansion, Reactivation, Contraction and Churned MRR contributed to the slowdown in RavenStack's monthly MRR growth rate?
 2. **Customer segments:** How has churn changed across customer segments over time?
-3. **Product usage:** How is feature usage frequency over a 30-day period associated with paid-customer retention over the following 30 days?
-4. **Support experience:** How is support CSAT associated with paid-customer retention 30 days after support, and how has this relationship changed over time?
-5. **Subscription plans:** How has Expansion MRR changed across Basic, Pro and Enterprise over the last three months?
+3. **Product usage:** How is feature usage frequency over a 30-day period associated with paid-customer retention at the end of the following 30 days?
+4. **Support experience:** How is support CSAT associated with paid-customer retention 30 days after the selected CSAT response, and how has this relationship changed over time?
+5. **Subscription plans:** How has Expansion MRR changed across Basic, Pro and Enterprise over the latest three complete months available in the dataset?
 
 ## 6. Initial Scope and Limitations
 
-The questions and analysis windows are proposed requirements, subject to source-data availability. Metric definitions, customer segments and observation rules will be documented after inspecting the data; the three-month comparison will use the latest three complete months available in the dataset.
+The questions and analysis windows are proposed requirements, subject to source-data availability. Working metric definitions and observation rules are documented in [metric_definitions.md](metric_definitions.md). Source mapping, the availability of customer segments and data-dependent choices such as usage bands and CSAT thresholds remain subject to validation.
+
+Paid-customer retention is measured at a specified endpoint and can include accounts that leave and return before that endpoint. For the support analysis, the selected CSAT response's recorded timestamp starts the 30-day follow-up; it is an operational post-support anchor rather than a verified ticket-resolution time. The three-month plan comparison uses the latest three complete months available in the dataset.
 
 Associations between product usage or support experience and retention will not, on their own, establish causation. Any identified pattern must be connected to MRR movements over time before being presented as evidence that it contributes to the growth slowdown.
+
+The rationale, illustrative calculations and interpretation limits for each question are documented in [business_questions_defence.md](business_questions_defence.md). No source feasibility, completed implementation or analytical result is established by these documents alone.
